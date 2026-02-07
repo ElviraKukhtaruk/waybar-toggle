@@ -8,7 +8,7 @@ A lightweight utility that automatically shows/hides [Waybar](https://github.com
 - Hides Waybar when mouse moves away from the configured threshold
 - Works with both Hyprland and Sway compositors
 - Configurable hide threshold for fine-tuned control
-- Minimal resource usage with 75ms polling interval
+- Minimal resource usage with configurable polling interval (default: 75ms)
 - Simple command-line configuration
 
 ## Requirements
@@ -30,7 +30,7 @@ sudo cp target/release/waybar-toggle /usr/local/bin/
 ## Usage
 
 ```bash
-waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>]
+waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>] [-p <poll_ms>]
 ```
 
 ### Arguments
@@ -38,6 +38,7 @@ waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>]
 - `-c, --config` - Path to your Waybar config file
 - `-s, --style` - Path to your Waybar CSS style file
 - `-y, --y-threshold` - (Optional) Y-coordinate threshold for hiding Waybar (default: 7)
+- `-p, --poll-ms` - (Optional) Poll interval in milliseconds (default: 75)
 
 ### Examples
 
@@ -49,6 +50,11 @@ waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css
 With custom hide threshold (hides when mouse is more than 20 pixels from top):
 ```bash
 waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
+```
+
+With custom poll interval (poll every 50ms):
+```bash
+waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -p 50
 ```
 
 ## Autostart
@@ -67,6 +73,11 @@ With custom threshold:
 exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
 ```
 
+With custom poll interval:
+```conf
+exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -p 50
+```
+
 ### Sway
 
 Add to `config`:
@@ -77,6 +88,11 @@ exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css
 With custom threshold:
 ```conf
 exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
+```
+
+With custom poll interval:
+```conf
+exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -p 50
 ```
 
 ## How It Works

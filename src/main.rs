@@ -5,12 +5,12 @@ use std::time::Duration;
 use std::{env, process};
 
 fn main() {
-    let (config_path, style_path, y_threshold) = match parse_args() {
+    let (config_path, style_path, y_threshold, poll_ms) = match parse_args() {
         Some(v) => v,
         None => {
             eprintln!(
-                "Usage: waybar-togle -c <config_path> -s <style_path> [-y <hide_threshold>]\n\
-Example: waybar-togle -c config -s style.css -y 10"
+                "Usage: waybar-togle -c <config_path> -s <style_path> [-y <hide_threshold>] [-p <poll_ms>]\n\
+Example: waybar-togle -c config -s style.css -y 10 -p 75"
             );
             process::exit(2);
         }
@@ -31,7 +31,7 @@ Example: waybar-togle -c config -s style.css -y 10"
             }
         }
 
-        thread::sleep(Duration::from_millis(75));
+        thread::sleep(Duration::from_millis(poll_ms));
     }
 }
 
@@ -65,10 +65,11 @@ fn waybar_pid() -> &'static Mutex<Option<u32>> {
     WAYBAR_PID.get_or_init(|| Mutex::new(None))
 }
 
-fn parse_args() -> Option<(String, String, i32)> {
+fn parse_args() -> Option<(String, String, i32, u64)> {
     let mut config_path: Option<String> = None;
     let mut style_path: Option<String> = None;
     let mut y_threshold: i32 = 7;
+    let mut poll_ms: u64 = 75;
     let mut args = env::args().skip(1);
 
     while let Some(arg) = args.next() {
@@ -83,12 +84,16 @@ fn parse_args() -> Option<(String, String, i32)> {
                 let next = args.next()?;
                 y_threshold = next.parse::<i32>().ok()?;
             }
+            "-p" | "--poll-ms" => {
+                let next = args.next()?;
+                poll_ms = next.parse::<u64>().ok()?;
+            }
             _ => {}
         }
     }
 
     match (config_path, style_path) {
-        (Some(c), Some(s)) => Some((c, s, y_threshold)),
+        (Some(c), Some(s)) => Some((c, s, y_threshold, poll_ms)),
         _ => None,
     }
 }
