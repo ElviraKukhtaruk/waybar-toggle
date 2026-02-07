@@ -5,12 +5,12 @@ use std::time::Duration;
 use std::{env, process};
 
 fn main() {
-    let (config_path, style_path) = match parse_args() {
+    let (config_path, style_path, y_threshold) = match parse_args() {
         Some(v) => v,
         None => {
             eprintln!(
-                "Usage: waybar-togle -c <config_path> -s <style_path>\n\
-Example: waybar-togle -c config -s style.css"
+                "Usage: waybar-togle -c <config_path> -s <style_path> [-y <hide_threshold>]\n\
+Example: waybar-togle -c config -s style.css -y 10"
             );
             process::exit(2);
         }
@@ -21,14 +21,14 @@ Example: waybar-togle -c config -s style.css"
     let mut mouse_was_at_top = false;
 
     loop {
-        let mouse_at_top = is_mouse_at_top();
-
-        if mouse_at_top && !mouse_was_at_top {
-            show_waybar(&config_path, &style_path);
-            mouse_was_at_top = true;
-        } else if !mouse_at_top && mouse_was_at_top {
-            hide_waybar();
-            mouse_was_at_top = false;
+        if let Some(y) = get_mouse_y() {
+            if y <= 1 && !mouse_was_at_top {
+                show_waybar(&config_path, &style_path);
+                mouse_was_at_top = true;
+            } else if y > y_threshold && mouse_was_at_top {
+                hide_waybar();
+                mouse_was_at_top = false;
+            }
         }
 
         thread::sleep(Duration::from_millis(75));
@@ -65,9 +65,10 @@ fn waybar_pid() -> &'static Mutex<Option<u32>> {
     WAYBAR_PID.get_or_init(|| Mutex::new(None))
 }
 
-fn parse_args() -> Option<(String, String)> {
+fn parse_args() -> Option<(String, String, i32)> {
     let mut config_path: Option<String> = None;
     let mut style_path: Option<String> = None;
+    let mut y_threshold: i32 = 1;
     let mut args = env::args().skip(1);
 
     while let Some(arg) = args.next() {
@@ -78,23 +79,27 @@ fn parse_args() -> Option<(String, String)> {
             "-s" | "--style" => {
                 style_path = args.next();
             }
+            "-y" | "--y-threshold" => {
+                let next = args.next()?;
+                y_threshold = next.parse::<i32>().ok()?;
+            }
             _ => {}
         }
     }
 
     match (config_path, style_path) {
-        (Some(c), Some(s)) => Some((c, s)),
+        (Some(c), Some(s)) => Some((c, s, y_threshold)),
         _ => None,
     }
 }
 
-fn is_mouse_at_top() -> bool {
+fn get_mouse_y() -> Option<i32> {
     // Try Hyprland first
     if let Ok(output) = Command::new("hyprctl").args(&["cursorpos"]).output() {
         if let Ok(pos) = String::from_utf8(output.stdout) {
             if let Some(y_str) = pos.split(',').nth(1) {
                 if let Ok(y) = y_str.trim().parse::<i32>() {
-                    return y <= 1;
+                    return Some(y);
                 }
             }
         }
@@ -107,12 +112,12 @@ fn is_mouse_at_top() -> bool {
                 let rest = &json_str[idx + 11..];
                 if let Some(end) = rest.find(|c: char| !c.is_numeric()) {
                     if let Ok(y) = rest[..end].parse::<i32>() {
-                        return y <= 1;
+                        return Some(y);
                     }
                 }
             }
         }
     }
 
-    false
+    None
 }
