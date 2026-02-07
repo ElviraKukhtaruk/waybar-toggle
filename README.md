@@ -54,7 +54,7 @@ waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
 
 With custom poll interval (poll every 50ms):
 ```bash
-waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -p 50
+waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
 ```
 
 ## Autostart
@@ -75,7 +75,7 @@ exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.c
 
 With custom poll interval:
 ```conf
-exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -p 50
+exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
 ```
 
 ### Sway
@@ -92,7 +92,7 @@ exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 2
 
 With custom poll interval:
 ```conf
-exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -p 50
+exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
 ```
 
 ## How It Works
