@@ -8,6 +8,7 @@ A lightweight utility that automatically shows/hides [Waybar](https://github.com
 - Hides Waybar when mouse moves away from the configured threshold
 - Works with both Hyprland and Sway compositors
 - Configurable hide threshold for fine-tuned control
+- Optional hide delay to keep Waybar visible while moving into submenus
 - Minimal resource usage with configurable polling interval (default: 75ms)
 - Simple command-line configuration
 
@@ -30,7 +31,7 @@ sudo cp target/release/waybar-toggle /usr/local/bin/
 ## Usage
 
 ```bash
-waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>] [-p <poll_ms>]
+waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>] [-p <poll_ms>] [-d <hide_delay_ms>]
 ```
 
 ### Arguments
@@ -39,6 +40,7 @@ waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>] [-p <poll_m
 - `-s, --style` - Path to your Waybar CSS style file
 - `-y, --y-threshold` - (Optional) Y-coordinate threshold for hiding Waybar (default: 7)
 - `-p, --poll-ms` - (Optional) Poll interval in milliseconds (default: 75)
+- `-d, --hide-delay-ms` - (Optional) Delay in milliseconds before hiding Waybar (default: 250)
 
 ### Examples
 
@@ -57,6 +59,10 @@ With custom poll interval (poll every 50ms):
 waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
 ```
 
+With hide delay to allow submenu interaction:
+```bash
+waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300
+```
 ## Autostart
 
 To start waybar-toggle automatically with your compositor:
@@ -78,6 +84,11 @@ With custom poll interval:
 exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
 ```
 
+With hide delay:
+```conf
+exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300
+```
+
 ### Sway
 
 Add to `config`:
@@ -95,12 +106,17 @@ With custom poll interval:
 exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
 ```
 
+With hide delay:
+```conf
+exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300
+```
+
 ## How It Works
 
 - On Hyprland: uses `hyprctl cursorpos` to get mouse position
 - On Sway: uses `swaymsg -t get_seats` to get mouse position
 
-When the Y-coordinate is ≤1 (top of screen), Waybar is spawned. When the cursor moves beyond the configured threshold (default: 7 pixels), the Waybar process is terminated.
+When the Y-coordinate is ≤1 (top of screen), Waybar is spawned. When the cursor moves beyond the configured threshold (default: 7 pixels), Waybar waits for the hide delay (default: 250ms) and is terminated if the cursor is still beyond the threshold.
 
 ### Threshold Behavior
 
