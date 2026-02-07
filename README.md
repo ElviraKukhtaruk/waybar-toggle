@@ -37,7 +37,7 @@ waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>]
 
 - `-c, --config` - Path to your Waybar config file
 - `-s, --style` - Path to your Waybar CSS style file
-- `-y, --y-threshold` - (Optional) Y-coordinate threshold for hiding Waybar (default: 1)
+- `-y, --y-threshold` - (Optional) Y-coordinate threshold for hiding Waybar (default: 7)
 
 ### Examples
 
@@ -46,9 +46,9 @@ Basic usage:
 waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css
 ```
 
-With custom hide threshold (hides when mouse is more than 50 pixels from top):
+With custom hide threshold (hides when mouse is more than 20 pixels from top):
 ```bash
-waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 50
+waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
 ```
 
 ## Autostart
@@ -64,7 +64,7 @@ exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.c
 
 With custom threshold:
 ```conf
-exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 50
+exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
 ```
 
 ### Sway
@@ -76,7 +76,7 @@ exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css
 
 With custom threshold:
 ```conf
-exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 50
+exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
 ```
 
 ## How It Works
@@ -84,11 +84,11 @@ exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 5
 - On Hyprland: uses `hyprctl cursorpos` to get mouse position
 - On Sway: uses `swaymsg -t get_seats` to get mouse position
 
-When the Y-coordinate is ≤1 (top of screen), Waybar is spawned. When the cursor moves beyond the configured threshold (default: 1 pixel), the Waybar process is terminated.
+When the Y-coordinate is ≤1 (top of screen), Waybar is spawned. When the cursor moves beyond the configured threshold (default: 7 pixels), the Waybar process is terminated.
 
 ### Threshold Behavior
 
 - **Show trigger**: Mouse Y-coordinate ≤ 1 pixel (always at screen edge)
 - **Hide trigger**: Mouse Y-coordinate > threshold (configurable via `-y` flag)
 
-This allows you to set a "safe zone" - for example, with `-y 50`, Waybar stays visible until your mouse is more than 50 pixels from the top of the screen.
+This allows you to set a "safe zone" - for example, with `-y 20`, Waybar stays visible until your mouse is more than 20 pixels from the top of the screen.

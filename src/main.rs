@@ -68,7 +68,7 @@ fn waybar_pid() -> &'static Mutex<Option<u32>> {
 fn parse_args() -> Option<(String, String, i32)> {
     let mut config_path: Option<String> = None;
     let mut style_path: Option<String> = None;
-    let mut y_threshold: i32 = 1;
+    let mut y_threshold: i32 = 7;
     let mut args = env::args().skip(1);
 
     while let Some(arg) = args.next() {
