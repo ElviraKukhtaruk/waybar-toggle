@@ -46,27 +46,7 @@ waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>] [-p <poll_m
 
 ### Examples
 
-Basic usage:
-```bash
-waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css
-```
-
-With custom hide threshold (hides when mouse is more than 20 pixels from top):
-```bash
-waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
-```
-
-With custom poll interval (poll every 50ms):
-```bash
-waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
-```
-
-With hide delay to allow submenu interaction:
-```bash
-waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300
-```
-
-With show delay to avoid accidental reveals:
+Example with custom thresholds and delays:
 ```bash
 waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300 -e 200
 ```
@@ -81,22 +61,7 @@ Add to `hyprland.conf`:
 exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css
 ```
 
-With custom threshold:
-```conf
-exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
-```
-
-With custom poll interval:
-```conf
-exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
-```
-
-With hide delay:
-```conf
-exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300
-```
-
-With show delay:
+Example with custom thresholds and delays:
 ```conf
 exec-once = waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300 -e 200
 ```
@@ -108,22 +73,7 @@ Add to `config`:
 exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css
 ```
 
-With custom threshold:
-```conf
-exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20
-```
-
-With custom poll interval:
-```conf
-exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50
-```
-
-With hide delay:
-```conf
-exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300
-```
-
-With show delay:
+Example with custom thresholds and delays:
 ```conf
 exec waybar-toggle -c ~/.config/waybar/config -s ~/.config/waybar/style.css -y 20 -p 50 -d 300 -e 200
 ```
