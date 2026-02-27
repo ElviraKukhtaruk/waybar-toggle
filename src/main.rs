@@ -19,6 +19,14 @@ Example: waybar-togle -c config -s style.css -y 10 -p 75 -d 250"
 
     println!("Waybar hover detector started");
 
+    // Start waybar once, it will stay alive forever
+    start_waybar(&config_path, &style_path);
+    // Give it time to initialize before we can hide it
+    thread::sleep(Duration::from_millis(1000));
+    // Hide it immediately at start
+    send_sigusr1();
+    let mut waybar_visible = false;
+
     let mut mouse_was_at_top = false;
     let mut top_entered_at: Option<Instant> = None;
 
@@ -38,8 +46,11 @@ Example: waybar-togle -c config -s style.css -y 10 -p 75 -d 250"
                             .unwrap_or(false)
                     };
 
-                    if should_show {
-                        show_waybar(&config_path, &style_path);
+                    if should_show && !waybar_visible {
+                        send_sigusr1();
+                        waybar_visible = true;
+                        mouse_was_at_top = true;
+                    } else if should_show {
                         mouse_was_at_top = true;
                     }
                 }
@@ -55,7 +66,10 @@ Example: waybar-togle -c config -s style.css -y 10 -p 75 -d 250"
                             }
                         }
                     }
-                    hide_waybar();
+                    if waybar_visible {
+                        send_sigusr1();
+                        waybar_visible = false;
+                    }
                     mouse_was_at_top = false;
                 }
             }
@@ -65,7 +79,7 @@ Example: waybar-togle -c config -s style.css -y 10 -p 75 -d 250"
     }
 }
 
-fn show_waybar(config_path: &str, style_path: &str) {
+fn start_waybar(config_path: &str, style_path: &str) {
     let child = Command::new("waybar")
         .args(&["-c", config_path, "-s", style_path])
         .spawn();
@@ -78,16 +92,12 @@ fn show_waybar(config_path: &str, style_path: &str) {
     }
 }
 
-fn hide_waybar() {
-    let pid = if let Ok(mut guard) = waybar_pid().lock() {
-        guard.take()
-    } else {
-        None
-    };
-
-    if let Some(pid) = pid {
-        Command::new("kill").arg(pid.to_string()).spawn().ok();
-    }
+fn send_sigusr1() {
+    // Send SIGUSR1 to waybar to toggle visibility
+    Command::new("pkill")
+        .args(&["-SIGUSR1", "-x", "waybar"])
+        .spawn()
+        .ok();
 }
 
 fn waybar_pid() -> &'static Mutex<Option<u32>> {
