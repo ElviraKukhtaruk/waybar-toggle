@@ -10,8 +10,8 @@ fn main() {
             Some(v) => v,
             None => {
                 eprintln!(
-                    "Usage: waybar-togle -c <config_path> -s <style_path> [-y <hide_threshold>] [-p <poll_ms>] [-d <hide_delay_ms>]\n\
-Example: waybar-togle -c config -s style.css -y 10 -p 75 -d 250"
+                    "Usage: waybar-toggle -c <config_path> -s <style_path> [-y <hide_threshold>] [-p <poll_ms>] [-d <hide_delay_ms>] [-e <show_delay_ms>]\n\
+Example: waybar-toggle -c config -s style.css -y 10 -p 75 -d 250 -e 100"
                 );
                 process::exit(2);
             }
@@ -23,8 +23,9 @@ Example: waybar-togle -c config -s style.css -y 10 -p 75 -d 250"
     start_waybar(&config_path, &style_path);
     // Give it time to initialize before we can hide it
     thread::sleep(Duration::from_millis(1000));
-    // Hide it immediately at start
-    send_sigusr1();
+
+    // Hide immediately at start using explicit hide signal
+    send_hide();
     let mut waybar_visible = false;
 
     let mut mouse_was_at_top = false;
@@ -46,11 +47,11 @@ Example: waybar-togle -c config -s style.css -y 10 -p 75 -d 250"
                             .unwrap_or(false)
                     };
 
-                    if should_show && !waybar_visible {
-                        send_sigusr1();
-                        waybar_visible = true;
-                        mouse_was_at_top = true;
-                    } else if should_show {
+                    if should_show {
+                        if !waybar_visible {
+                            send_show();
+                            waybar_visible = true;
+                        }
                         mouse_was_at_top = true;
                     }
                 }
@@ -62,12 +63,13 @@ Example: waybar-togle -c config -s style.css -y 10 -p 75 -d 250"
                         thread::sleep(Duration::from_millis(hide_delay_ms));
                         if let Some(y_after_delay) = get_mouse_y() {
                             if y_after_delay <= y_threshold {
+                                thread::sleep(Duration::from_millis(poll_ms));
                                 continue;
                             }
                         }
                     }
                     if waybar_visible {
-                        send_sigusr1();
+                        send_hide();
                         waybar_visible = false;
                     }
                     mouse_was_at_top = false;
@@ -92,8 +94,21 @@ fn start_waybar(config_path: &str, style_path: &str) {
     }
 }
 
-fn send_sigusr1() {
-    // Send SIGUSR1 to waybar to toggle visibility
+/// Show waybar explicitly.
+/// Waybar treats SIGUSR1 as a toggle. We track state carefully so we only
+/// call send_show() when we know waybar is hidden, and send_hide() only when
+/// we know it is visible — making the toggle behave like explicit show/hide.
+fn send_show() {
+    Command::new("pkill")
+        .args(&["-SIGUSR1", "-x", "waybar"])
+        .spawn()
+        .ok();
+}
+
+/// Hide waybar explicitly.
+/// Same as above — because we only call this when waybar is known to be
+/// visible, the toggle signal reliably hides it.
+fn send_hide() {
     Command::new("pkill")
         .args(&["-SIGUSR1", "-x", "waybar"])
         .spawn()
